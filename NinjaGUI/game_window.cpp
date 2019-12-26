@@ -1,0 +1,123 @@
+#include <stdexcept>
+
+#include <QDebug>
+#include <QFileInfo>
+
+#include "game_window.h"
+#include "ui_game_window.h"
+
+#include "simulation.h"
+
+static QString inputFolderPath()
+{
+    QString current = QDir::currentPath();
+    qDebug() << current;
+    QDir input(current + "/../../NinjaGame/input/maps");
+    if (input.exists())
+        return input.canonicalPath();
+    else
+        return current;
+}
+
+GameWindow::GameWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::GameWindow),
+    m_fileSystemModel(new QFileSystemModel(this))
+{
+    ui->setupUi(this);
+
+    // Set up the tree view
+    QString dir = inputFolderPath();
+    qDebug() << "Input folder path:" << dir;
+    m_fileSystemModel->setRootPath("");
+    m_fileSystemModel->setFilter(QDir::AllEntries | QDir::QDir::NoDot);
+    ui->fileListView->setModel(m_fileSystemModel.get());
+
+    if (!dir.isEmpty())
+    {
+        const QModelIndex rootIndex =
+            m_fileSystemModel->index(QDir::cleanPath(dir));
+        if (rootIndex.isValid())
+            ui->fileListView->setRootIndex(rootIndex);
+        ui->pathEdit->setText(dir);
+    }
+}
+
+GameWindow::~GameWindow()
+{
+    delete ui;
+}
+
+void GameWindow::openFile(QString filename)
+{
+    ui->outputText->clear();
+
+    try
+    {
+        m_simulation.reset(new Simulation());
+        m_simulation->loadMapFromFile(filename);
+        ui->mapLabel->setText(filename);
+        outputLine(QString("Map opened: %1").arg(filename));
+
+        ui->gameView->setSimulation(m_simulation.get());
+        resize(700 + ui->gameView->width(), height());
+    }
+    catch (std::exception& e)
+    {
+        qWarning("Exception: %s", e.what());
+        outputLine(QString("Exception: %1").arg(e.what()));
+
+        ui->mapLabel->setText("<None>");
+        ui->gameView->setSimulation(nullptr);
+        m_simulation.clear();
+    }
+
+    ui->gameView->update();
+}
+
+void GameWindow::outputLine(QString line)
+{
+    ui->outputText->moveCursor(QTextCursor::End);
+    ui->outputText->insertPlainText(line + '\n');
+}
+
+
+void GameWindow::on_fileOpenButton_clicked()
+{
+    auto index = ui->fileListView->currentIndex();
+    if (m_fileSystemModel->fileInfo(index).isFile())
+    {
+        openFile(m_fileSystemModel->filePath(index));
+    }
+}
+
+void GameWindow::on_fileListView_doubleClicked(const QModelIndex &index)
+{
+    QString path = QDir::cleanPath(m_fileSystemModel->filePath(index));
+    qDebug() << path;
+
+    if (m_fileSystemModel->fileInfo(index).isDir())
+    {
+        ui->pathEdit->setText(path);
+        const QModelIndex rootIndex = m_fileSystemModel->index(path);
+        if (rootIndex.isValid())
+            ui->fileListView->setRootIndex(rootIndex);
+    }
+    else
+    {
+        openFile(path);
+    }
+}
+
+void GameWindow::on_pathEdit_returnPressed()
+{
+    QString path = ui->pathEdit->text();
+    qDebug() << path;
+
+    if (QFileInfo(path).isDir())
+    {
+        const QModelIndex rootIndex = m_fileSystemModel->index(path);
+        if (rootIndex.isValid())
+            ui->fileListView->setRootIndex(rootIndex);
+    }
+}
