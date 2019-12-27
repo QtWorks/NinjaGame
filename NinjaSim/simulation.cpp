@@ -7,6 +7,7 @@
 
 Simulation::Simulation(QObject *parent) :
     QObject(parent),
+    m_finished(false),
     m_width(0),
     m_height(0)
 {
@@ -21,6 +22,7 @@ void Simulation::loadMapFromFile(QString filename)
         throw std::runtime_error(error.toStdString());
     }
 
+    m_finished = false;
     m_width = 0;
     m_height = 0;
     m_tiles.clear();
@@ -60,6 +62,7 @@ void Simulation::loadMapFromFile(QString filename)
             {
                 // Create a new player for each start tile
                 PlayerPtr player(new Player());
+                player->setSimulation(this);
                 player->setPosition(QPoint(x, y));
                 m_players.push_back(player);
             }
@@ -169,9 +172,32 @@ Simulation::TilePtr Simulation::createTile(char letter) const
     return tile;
 }
 
+bool Simulation::finished() const
+{
+    return m_finished;
+}
+
+void Simulation::setFinished(bool finished)
+{
+    m_finished = finished;
+}
+
 const QVector<Simulation::PlayerPtr> Simulation::players() const
 {
     return m_players;
+}
+
+Simulation::PlayerPtr Simulation::primaryPlayer() const
+{
+    if (m_players.size() > 0)
+        return m_players[0];
+
+    return nullptr;
+}
+
+Simulation::TilePtr Simulation::tile(const QPoint& position) const
+{
+    return tile(position.x(), position.y());
 }
 
 Simulation::TilePtr Simulation::tile(int x, int y) const
@@ -186,6 +212,18 @@ Simulation::TilePtr Simulation::tile(int x, int y) const
     return nullptr;
 }
 
+Simulation::TilePtr Simulation::replaceTile(const QPoint& position, char letter)
+{
+    auto current = tile(position);
+    // We cannot replace a non-existent tile
+    if (!current)
+        return nullptr;
+
+    auto newTile = createTile(letter);
+    m_tiles[position.y()][position.x()] = newTile;
+    return newTile;
+}
+
 int Simulation::width() const
 {
     return m_width;
@@ -194,6 +232,26 @@ int Simulation::width() const
 int Simulation::height() const
 {
     return m_height;
+}
+
+QString Simulation::runSingleStep()
+{
+    QString action;
+
+    if (m_finished || m_players.empty())
+        return action;
+
+    for (auto player : m_players)
+    {
+        action = player->runStep();
+    }
+
+    return action;
+}
+
+bool Simulation::runFullGame()
+{
+    return false;
 }
 
 

@@ -30,6 +30,12 @@ private slots:
 
     void on_pathEdit_returnPressed();
 
+    void on_fileReloadButton_clicked();
+
+    void on_runSingleButton_clicked();
+
+    void on_runFullButton_clicked();
+
 private:
     Ui::GameWindow *ui;
 

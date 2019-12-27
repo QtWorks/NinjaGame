@@ -15,20 +15,7 @@
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QGridLayout" name="gridLayout">
-    <item row="6" column="0">
-     <widget class="QListView" name="fileListView"/>
-    </item>
-    <item row="5" column="0">
-     <widget class="QLineEdit" name="pathEdit"/>
-    </item>
-    <item row="6" column="1">
-     <widget class="QTextEdit" name="outputText">
-      <property name="readOnly">
-       <bool>true</bool>
-      </property>
-     </widget>
-    </item>
-    <item row="0" column="0" rowspan="5">
+    <item row="0" column="0">
      <layout class="QHBoxLayout" name="leftButtons">
       <item>
        <widget class="QPushButton" name="fileOpenButton">
@@ -51,14 +38,48 @@
       </item>
      </layout>
     </item>
-    <item row="5" column="1">
-     <widget class="QLabel" name="mapLabel">
-      <property name="text">
-       <string>CurrentMap</string>
+    <item row="2" column="2">
+     <layout class="QHBoxLayout" name="rightLabels">
+      <item>
+       <widget class="QLabel" name="breakerLabel">
+        <property name="text">
+         <string>Breaker: OFF</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="shurikenLabel">
+        <property name="text">
+         <string>Shurikens: 3</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QLabel" name="stepsLabel">
+        <property name="text">
+         <string>Steps: 0</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+    <item row="3" column="0">
+     <widget class="QListView" name="fileListView"/>
+    </item>
+    <item row="3" column="1">
+     <widget class="QTextEdit" name="outputText">
+      <property name="readOnly">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
-    <item row="6" column="2" alignment="Qt::AlignTop">
+    <item row="3" column="2" alignment="Qt::AlignTop">
      <widget class="GameView" name="gameView" native="true">
       <property name="minimumSize">
        <size>
@@ -71,17 +92,17 @@
       </property>
      </widget>
     </item>
-    <item row="5" column="2">
-     <widget class="QLabel" name="stepsLabel">
+    <item row="2" column="0">
+     <widget class="QLineEdit" name="pathEdit"/>
+    </item>
+    <item row="2" column="1">
+     <widget class="QLabel" name="mapLabel">
       <property name="text">
-       <string>Steps: 0</string>
-      </property>
-      <property name="alignment">
-       <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       <string>CurrentMap</string>
       </property>
      </widget>
     </item>
-    <item row="0" column="1" rowspan="5" colspan="2">
+    <item row="0" column="1" colspan="2">
      <layout class="QHBoxLayout" name="rightButtons" stretch="0,0,0">
       <item>
        <widget class="QPushButton" name="fileReloadButton">

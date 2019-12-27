@@ -81,13 +81,22 @@ void GameWindow::outputLine(QString line)
     ui->outputText->insertPlainText(line + '\n');
 }
 
-
 void GameWindow::on_fileOpenButton_clicked()
 {
     auto index = ui->fileListView->currentIndex();
     if (m_fileSystemModel->fileInfo(index).isFile())
     {
         openFile(m_fileSystemModel->filePath(index));
+    }
+}
+
+void GameWindow::on_fileReloadButton_clicked()
+{
+    QString path = ui->mapLabel->text();
+
+    if (QFileInfo(path).isFile())
+    {
+        openFile(ui->mapLabel->text());
     }
 }
 
@@ -120,4 +129,30 @@ void GameWindow::on_pathEdit_returnPressed()
         if (rootIndex.isValid())
             ui->fileListView->setRootIndex(rootIndex);
     }
+}
+
+
+void GameWindow::on_runSingleButton_clicked()
+{
+    if (!m_simulation)
+        return;
+
+    QString action = m_simulation->runSingleStep();
+    outputLine(action);
+
+    auto player = m_simulation->primaryPlayer();
+    QString state = player->breakerMode() ? "ON" : "OFF";
+    ui->breakerLabel->setText(QString("Breaker: %1").arg(state));
+    quint32 shurikens = player->shurikens();
+    ui->shurikenLabel->setText(QString("Shurikens: %1").arg(shurikens));
+    int steps = player->actionList().size();
+    ui->stepsLabel->setText(QString("Steps: %1").arg(steps));
+
+    ui->gameView->update();
+}
+
+void GameWindow::on_runFullButton_clicked()
+{
+    if (!m_simulation)
+        return;
 }

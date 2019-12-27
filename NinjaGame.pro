@@ -1,6 +1,9 @@
 TEMPLATE = subdirs
 
 SUBDIRS += \
+    NinjaSim \
     NinjaCLI \
-    NinjaGUI \
-    NinjaSim
+    NinjaGUI
+
+NinjaCLI.depends = NinjaSim
+NinjaGUI.depends = NinjaSim

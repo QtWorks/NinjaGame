@@ -12,10 +12,8 @@ public:
     TileType type() const;
     char letter() const;
 
-    bool isWalkable() const;
     bool isObstacle() const;
     bool isDestructible() const;
-
 
     QPoint direction() const;
 

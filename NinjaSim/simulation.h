@@ -3,6 +3,7 @@
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
+#include <QStringList>
 #include <QVector>
 
 #include "tile.h"
@@ -21,13 +22,23 @@ public:
 
     void loadMapFromFile(QString filename);
 
+    TilePtr tile(const QPoint& position) const;
     TilePtr tile(int x, int y) const;
+    TilePtr replaceTile(const QPoint& position, char letter);
 
     int width() const;
-
     int height() const;
 
     const QVector<PlayerPtr> players() const;
+
+    PlayerPtr primaryPlayer() const;
+
+    QString runSingleStep();
+
+    bool runFullGame();
+
+    bool finished() const;
+    void setFinished(bool finished);
 
 signals:
 
@@ -37,6 +48,8 @@ private:
 
 
 private:
+
+    bool m_finished;
 
     QVector<PlayerPtr> m_players;
 

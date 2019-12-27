@@ -40,19 +40,32 @@ char Tile::letter() const
     return m_letter;
 }
 
-bool Tile::isWalkable() const
-{
-    return false;
-}
-
 bool Tile::isObstacle() const
 {
-    return false;
+    switch (m_type)
+    {
+    case TileType::WALL:
+    case TileType::BOX:
+    case TileType::GOAL:
+    case TileType::MIRROR:
+        return true;
+
+    default:
+        return false;
+    }
 }
 
 bool Tile::isDestructible() const
 {
-    return false;
+    switch (m_type)
+    {
+    case TileType::BOX:
+    case TileType::GOAL:
+        return true;
+
+    default:
+        return false;
+    }
 }
 
 QPoint Tile::direction() const

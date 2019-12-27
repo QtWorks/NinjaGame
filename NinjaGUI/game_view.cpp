@@ -91,17 +91,22 @@ void GameView::paintEvent(QPaintEvent*)
             // Also display the letter to identify different pathways
             if (tile->type() == TileType::PATHWAY)
             {
-                painter.setFont(QFont("Courier", 12, QFont::Bold));
-                int cx = px + qRound(m_tileSize * 0.3f);
-                int cy = py + qRound(m_tileSize * 0.7f);
-                painter.drawText(cx, cy, QString(tile->letter()));
+                // Load a default monospace font
+                QFont font("Courier", 12, QFont::Bold);
+                font.setStyleHint(QFont::TypeWriter);
+                painter.setFont(font);
+
+                // Set a proper frame and centered alignment for the letter
+                const QRect frame = QRect(px, py, m_tileSize, m_tileSize);
+                Qt::Alignment flags = Qt::AlignVCenter | Qt::AlignHCenter;
+                painter.drawText(frame, flags, QString(tile->letter()));
             }
         }
     }
 
     for (const auto& player : m_simulation->players())
     {
-        if (!player->alive()) continue;
+        if (player->dead()) continue;
         QPoint p = player->position() * m_tileSize;
         painter.drawPixmap(p.x(), p.y(), m_ninja);
     }
