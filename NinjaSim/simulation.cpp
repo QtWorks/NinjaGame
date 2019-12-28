@@ -346,6 +346,7 @@ QString Simulation::runSingleStep()
     {
         // We have identified a loop!
         m_loopDetected = true;
+        m_players[0]->addAction("LOOP");
     }
     else
     {
@@ -358,7 +359,19 @@ QString Simulation::runSingleStep()
 
 bool Simulation::runFullGame()
 {
-    return false;
+    const int maxSteps = 1000;
+
+    if (m_finished || m_loopDetected || m_players.empty())
+        return m_finished;
+
+    for (int i = 0; i < maxSteps; i++)
+    {
+        runSingleStep();
+        if (m_finished || m_loopDetected)
+            break;
+    }
+
+    return m_finished;
 }
 
 

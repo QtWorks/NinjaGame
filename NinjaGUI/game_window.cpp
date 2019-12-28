@@ -131,6 +131,16 @@ void GameWindow::on_pathEdit_returnPressed()
     }
 }
 
+void GameWindow::updatePlayerStats()
+{
+    auto player = m_simulation->primaryPlayer();
+    QString state = player->breakerMode() ? "ON" : "OFF";
+    ui->breakerLabel->setText(QString("Breaker: %1").arg(state));
+    quint32 shurikens = player->shurikens();
+    ui->shurikenLabel->setText(QString("Shurikens: %1").arg(shurikens));
+    int steps = player->actionList().size();
+    ui->stepsLabel->setText(QString("Steps: %1").arg(steps));
+}
 
 void GameWindow::on_runSingleButton_clicked()
 {
@@ -145,19 +155,21 @@ void GameWindow::on_runSingleButton_clicked()
     if (m_simulation->loopDetected())
         outputLine("LOOP");
 
-    auto player = m_simulation->primaryPlayer();
-    QString state = player->breakerMode() ? "ON" : "OFF";
-    ui->breakerLabel->setText(QString("Breaker: %1").arg(state));
-    quint32 shurikens = player->shurikens();
-    ui->shurikenLabel->setText(QString("Shurikens: %1").arg(shurikens));
-    int steps = player->actionList().size();
-    ui->stepsLabel->setText(QString("Steps: %1").arg(steps));
-
+    updatePlayerStats();
     ui->gameView->update();
 }
 
 void GameWindow::on_runFullButton_clicked()
 {
-    if (!m_simulation || m_simulation->finished())
+    if (!m_simulation || m_simulation->finished() ||
+        m_simulation->loopDetected())
         return;
+
+    m_simulation->runFullGame();
+
+    auto player = m_simulation->primaryPlayer();
+    ui->outputText->setText(player->actionList().join("\n"));
+
+    updatePlayerStats();
+    ui->gameView->update();
 }

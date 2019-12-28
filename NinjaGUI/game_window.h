@@ -18,6 +18,8 @@ public:
     GameWindow(QWidget *parent = nullptr);
     ~GameWindow();
 
+    void updatePlayerStats();
+    
 private:
     void openFile(QString filename);
 
