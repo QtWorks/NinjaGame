@@ -2,12 +2,15 @@
 
 #include <stdexcept>
 
+#include <QDebug>
 #include <QFile>
 #include <QMap>
+#include <QTextStream>
 
 Simulation::Simulation(QObject *parent) :
     QObject(parent),
     m_finished(false),
+    m_loopDetected(false),
     m_width(0),
     m_height(0)
 {
@@ -23,10 +26,12 @@ void Simulation::loadMapFromFile(QString filename)
     }
 
     m_finished = false;
+    m_loopDetected = false;
     m_width = 0;
     m_height = 0;
     m_tiles.clear();
     m_players.clear();
+    m_previousStates.clear();
 
     // Helper map to store the first endpoint of each pathway pair
     QMap<char, QPoint> firstEndpoints;
@@ -178,14 +183,24 @@ Simulation::TilePtr Simulation::createTile(char letter) const
     return tile;
 }
 
+int Simulation::width() const
+{
+    return m_width;
+}
+
+int Simulation::height() const
+{
+    return m_height;
+}
+
 bool Simulation::finished() const
 {
     return m_finished;
 }
 
-void Simulation::setFinished(bool finished)
+bool Simulation::loopDetected() const
 {
-    m_finished = finished;
+    return m_loopDetected;
 }
 
 const QVector<Simulation::PlayerPtr> Simulation::players() const
@@ -218,7 +233,8 @@ Simulation::TilePtr Simulation::tile(int x, int y) const
     return nullptr;
 }
 
-Simulation::TilePtr Simulation::replaceTile(const QPoint& position, char letter)
+Simulation::TilePtr Simulation::replaceTile(
+    const QPoint& position, char letter)
 {
     auto current = tile(position);
     // We cannot replace a non-existent tile
@@ -276,21 +292,39 @@ Simulation::TilePtr Simulation::findDestructibleTile(
     return nullptr;
 }
 
-int Simulation::width() const
+QString Simulation::toString() const
 {
-    return m_width;
-}
+    QString result;
+    QTextStream out(&result);
 
-int Simulation::height() const
-{
-    return m_height;
+    // Print all map tiles to the result
+    out << "Map:" << endl;
+
+    for (int x = 0; x < m_width; x++)
+    {
+        for (int y = 0; y < m_height; y++)
+        {
+            out << tile(x, y)->letter();
+        }
+        out << endl;
+    }
+
+    // Print all player data to the result
+    out << "Players:" << endl;
+    for (auto& player : m_players)
+    {
+        if (player->dead()) continue;
+        out << *player << endl;
+    }
+
+    return result;
 }
 
 QString Simulation::runSingleStep()
 {
     QString action;
 
-    if (m_finished || m_players.empty())
+    if (m_finished || m_loopDetected || m_players.empty())
         return action;
 
     for (auto player : m_players)
@@ -298,11 +332,25 @@ QString Simulation::runSingleStep()
         action = player->runStep();
     }
 
-    // If the game is finished, we add a GAME OVER action to the action list
+    // If the game is finished, we add a "GAME OVER" action to the action list
     // of the primary player
     if (m_finished)
     {
         m_players[0]->addAction("GAME OVER");
+    }
+
+    // Get the current state as a string
+    QString state = toString();
+    // Check if the simulation was in the exact same state before
+    if (m_previousStates.contains(state))
+    {
+        // We have identified a loop!
+        m_loopDetected = true;
+    }
+    else
+    {
+        // Save the current state
+        m_previousStates[state] = 1;
     }
 
     return action;

@@ -4,6 +4,7 @@
 #include <QPointer>
 #include <QSharedPointer>
 #include <QStringList>
+#include <QTextStream>
 #include <QVector>
 
 #include "direction.h"
@@ -42,6 +43,8 @@ public:
     QStringList actionList() const;
     QString addAction(QString action);
 
+    friend QTextStream& operator<<(QTextStream& out, const Player& p);
+
 private:
 
     QString move(QPoint destination, QPoint direction);
@@ -54,6 +57,8 @@ private:
 
     QPoint m_position;
     QPoint m_direction;
+    // Helper variable to easily print player state
+    bool m_defaultPriorities;
     QVector<QPoint> m_directionPriorities;
 
     quint32 m_shurikens;
@@ -63,4 +68,7 @@ private:
     QStringList m_actionList;
 
 };
+
+
+
 

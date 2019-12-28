@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QHash>
 #include <QObject>
 #include <QSharedPointer>
 #include <QString>
@@ -32,16 +33,17 @@ public:
     int width() const;
     int height() const;
 
-    const QVector<PlayerPtr> players() const;
+    bool finished() const;
+    bool loopDetected() const;
 
+    const QVector<PlayerPtr> players() const;
     PlayerPtr primaryPlayer() const;
+
+    QString toString() const;
 
     QString runSingleStep();
 
     bool runFullGame();
-
-    bool finished() const;
-    void setFinished(bool finished);
 
 signals:
 
@@ -49,10 +51,10 @@ private:
 
     TilePtr createTile(char letter) const;
 
-
 private:
 
     bool m_finished;
+    bool m_loopDetected;
 
     QVector<PlayerPtr> m_players;
 
@@ -60,4 +62,5 @@ private:
     int m_height;
     QVector<QVector<TilePtr>> m_tiles;
 
+    QHash<QString, int> m_previousStates;
 };

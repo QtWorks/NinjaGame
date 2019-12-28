@@ -12,6 +12,15 @@ Player::Player() :
     resetDirectionPriorities();
 }
 
+QTextStream& operator<<(QTextStream& out, const Player& p)
+{
+    QPoint pos = p.position();
+    QString dir = Direction::name(p.direction());
+    out << pos.x() << ';' << pos.y() << ';' << dir << ';' << p.shurikens();
+    out << ';' << p.breakerMode() << ';' << p.m_defaultPriorities;
+    return out;
+}
+
 void Player::setSimulation(Simulation* simulation)
 {
     m_simulation = simulation;
@@ -57,6 +66,8 @@ QVector<QPoint> Player::possibleDirections()
 
 void Player::resetDirectionPriorities()
 {
+    m_defaultPriorities = true;
+
     m_directionPriorities.clear();
     m_directionPriorities.push_back(Direction::south());
     m_directionPriorities.push_back(Direction::east());
@@ -76,6 +87,7 @@ void Player::reverseDirectionPriorities()
     }
     // Replace the current priorities with the reversed
     m_directionPriorities = reversed;
+    m_defaultPriorities = !m_defaultPriorities;
 }
 
 bool Player::dead() const
