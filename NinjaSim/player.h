@@ -2,10 +2,12 @@
 
 #include <QPoint>
 #include <QPointer>
+#include <QSharedPointer>
 #include <QStringList>
 #include <QVector>
 
 #include "direction.h"
+#include "tile.h"
 
 class Simulation;
 
@@ -38,10 +40,13 @@ public:
     void setBreakerMode(bool breakerMode);
 
     QStringList actionList() const;
+    QString addAction(QString action);
 
 private:
 
     QString move(QPoint destination, QPoint direction);
+
+    QString throwShuriken(QSharedPointer<Tile> target);
 
 private:
 

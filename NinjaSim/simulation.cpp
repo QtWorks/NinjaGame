@@ -50,6 +50,8 @@ void Simulation::loadMapFromFile(QString filename)
             if (letter == '\n' || letter == '\r')
                 break;
 
+            QPoint current(x, y);
+
             auto tile = createTile(letter);
             if (tile.isNull())
             {
@@ -57,6 +59,7 @@ void Simulation::loadMapFromFile(QString filename)
                 error = error.arg(y).arg(letter);
                 throw std::runtime_error(error.toStdString());
             }
+            tile->setPosition(current);
 
             if (tile->type() == TileType::START)
             {
@@ -69,7 +72,7 @@ void Simulation::loadMapFromFile(QString filename)
 
             if (tile->type() == TileType::PATHWAY)
             {
-                QPoint current(x, y);
+
                 // Find the other endpoint of this pathway
                 if (firstEndpoints.contains(letter))
                 {
@@ -107,14 +110,17 @@ void Simulation::loadMapFromFile(QString filename)
 
     // At this point, the map width is known, so we need to make sure that
     // each line has the same number of tiles to enforce a rectangular layout
+    y = 0;
     for (auto& line : m_tiles)
     {
         while (line.size() < m_width)
         {
             // Add some empty tiles until the line reaches full length
             TilePtr tile(new Tile(TileType::EMPTY, ' '));
+            tile->setPosition(QPoint(line.size(), y));
             line.push_back(tile);
         }
+        y++;
     }
 
 }
@@ -219,9 +225,55 @@ Simulation::TilePtr Simulation::replaceTile(const QPoint& position, char letter)
     if (!current)
         return nullptr;
 
+    // If we are replacing the GOAL tile, then the game should be finished
+    if (current->type() == TileType::GOAL)
+        m_finished = true;
+
     auto newTile = createTile(letter);
     m_tiles[position.y()][position.x()] = newTile;
     return newTile;
+}
+
+Simulation::TilePtr Simulation::findDestructibleTile(
+    const QPoint& position, const QPoint& direction, bool goalOnly) const
+{
+    int maxSteps = qMax(m_width, m_height);
+
+    QPoint targetPos = position;
+
+    for (int i = 0; i < maxSteps; i++)
+    {
+        // Move by one step in the given direction
+        targetPos += direction;
+
+        auto target = tile(targetPos);
+        // Return right away if we step outside the map boundaries
+        if (!target)
+            return nullptr;
+
+        // Abort further search if we step on an indestructible obstacle
+        if (target->isObstacle() && !target->isDestructible())
+            return nullptr;
+
+        // Check if this tile is destructible
+        if (target->isDestructible())
+        {
+            if (goalOnly)
+            {
+                // If goalOnly is true, check if this is a GOAL tile
+                if (target->type() == TileType::GOAL)
+                    return target;
+            }
+            else
+            {
+                // Otherwise return this destructible tile
+                return target;
+            }
+
+        }
+    }
+
+    return nullptr;
 }
 
 int Simulation::width() const
@@ -244,6 +296,13 @@ QString Simulation::runSingleStep()
     for (auto player : m_players)
     {
         action = player->runStep();
+    }
+
+    // If the game is finished, we add a GAME OVER action to the action list
+    // of the primary player
+    if (m_finished)
+    {
+        m_players[0]->addAction("GAME OVER");
     }
 
     return action;

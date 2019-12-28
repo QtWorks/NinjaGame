@@ -113,6 +113,24 @@ QStringList Player::actionList() const
     return m_actionList;
 }
 
+QString Player::addAction(QString action)
+{
+    m_actionList.push_back(action);
+    return action;
+}
+
+QString Player::throwShuriken(QSharedPointer<Tile> target)
+{
+    Q_ASSERT(m_shurikens > 0 && "Not enough shurikens to throw");
+
+    QPoint targetPos = target->position();
+    m_simulation->replaceTile(targetPos, '*');
+
+    m_shurikens--;
+
+    return addAction("THROW");
+}
+
 QString Player::move(QPoint destination, QPoint direction)
 {
     // Save the current direction
@@ -144,7 +162,7 @@ QString Player::move(QPoint destination, QPoint direction)
         setPosition(tile->pathwayEndpoint());
     }
 
-    return Direction::name(direction);
+    return addAction(Direction::name(direction));
 }
 
 QString Player::runStep()
@@ -154,7 +172,30 @@ QString Player::runStep()
     if (!m_simulation)
         return action;
 
-    // Move action
+    // THROW SHURIKEN ACTION
+
+    // Try to destroy the Holy Symbol first
+    for (QPoint dir : m_directionPriorities)
+    {
+        if (m_shurikens == 0) break;
+
+        auto tile = m_simulation->findDestructibleTile(m_position, dir, true);
+        if (tile)
+            return throwShuriken(tile);
+    }
+
+    // Try to destroy other destructible obstacles
+    for (QPoint dir : m_directionPriorities)
+    {
+        if (m_shurikens == 0) break;
+
+        auto tile = m_simulation->findDestructibleTile(m_position, dir, false);
+        if (tile)
+            return throwShuriken(tile);
+    }
+
+    // MOVE ACTION
+
     // Evaluate each possible direction for this move
     for (QPoint dir : possibleDirections())
     {

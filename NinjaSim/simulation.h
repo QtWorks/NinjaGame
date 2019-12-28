@@ -26,6 +26,9 @@ public:
     TilePtr tile(int x, int y) const;
     TilePtr replaceTile(const QPoint& position, char letter);
 
+    TilePtr findDestructibleTile(
+        const QPoint& position, const QPoint& direction, bool goalOnly) const;
+
     int width() const;
     int height() const;
 

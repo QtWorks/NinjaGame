@@ -134,11 +134,13 @@ void GameWindow::on_pathEdit_returnPressed()
 
 void GameWindow::on_runSingleButton_clicked()
 {
-    if (!m_simulation)
+    if (!m_simulation || m_simulation->finished())
         return;
 
     QString action = m_simulation->runSingleStep();
     outputLine(action);
+    if (m_simulation->finished())
+        outputLine("GAME OVER");
 
     auto player = m_simulation->primaryPlayer();
     QString state = player->breakerMode() ? "ON" : "OFF";
@@ -153,6 +155,6 @@ void GameWindow::on_runSingleButton_clicked()
 
 void GameWindow::on_runFullButton_clicked()
 {
-    if (!m_simulation)
+    if (!m_simulation || m_simulation->finished())
         return;
 }

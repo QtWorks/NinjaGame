@@ -82,3 +82,13 @@ void Tile::setPathwayEndpoint(const QPoint &pathwayEndpoint)
 {
     m_pathwayEndpoint = pathwayEndpoint;
 }
+
+QPoint Tile::position() const
+{
+    return m_position;
+}
+
+void Tile::setPosition(const QPoint &position)
+{
+    m_position = position;
+}

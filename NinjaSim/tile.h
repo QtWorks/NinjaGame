@@ -20,10 +20,16 @@ public:
     QPoint pathwayEndpoint() const;
     void setPathwayEndpoint(const QPoint& pathwayEndpoint);
 
+    QPoint position() const;
+    void setPosition(const QPoint& position);
+
 private:
 
     TileType m_type;
     char m_letter;
+
+    // The position of this tile on the map
+    QPoint m_position;
 
     // Direction used for path modifier arrows
     QPoint m_direction;
