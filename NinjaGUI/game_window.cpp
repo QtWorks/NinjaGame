@@ -48,33 +48,6 @@ GameWindow::~GameWindow()
     delete ui;
 }
 
-void GameWindow::openFile(QString filename)
-{
-    ui->outputText->clear();
-
-    try
-    {
-        m_simulation.reset(new Simulation());
-        m_simulation->loadMapFromFile(filename);
-        ui->mapLabel->setText(filename);
-        outputLine(QString("Map opened: %1").arg(filename));
-
-        ui->gameView->setSimulation(m_simulation.get());
-        resize(700 + ui->gameView->width(), height());
-    }
-    catch (std::exception& e)
-    {
-        qWarning("Exception: %s", e.what());
-        outputLine(QString("Exception: %1").arg(e.what()));
-
-        ui->mapLabel->setText("<None>");
-        ui->gameView->setSimulation(nullptr);
-        m_simulation.clear();
-    }
-
-    ui->gameView->update();
-}
-
 void GameWindow::outputLine(QString line)
 {
     ui->outputText->moveCursor(QTextCursor::End);
@@ -131,8 +104,38 @@ void GameWindow::on_pathEdit_returnPressed()
     }
 }
 
+void GameWindow::openFile(QString filename)
+{
+    ui->outputText->clear();
+
+    try
+    {
+        m_simulation.reset(new Simulation(filename, this));
+        ui->mapLabel->setText(filename);
+        outputLine(QString("Map opened: %1").arg(filename));
+
+        updatePlayerStats();
+        ui->gameView->setSimulation(m_simulation.get());
+        resize(700 + ui->gameView->width(), height());
+    }
+    catch (std::exception& e)
+    {
+        qWarning("Exception: %s", e.what());
+        outputLine(QString("Exception: %1").arg(e.what()));
+
+        ui->mapLabel->setText("<None>");
+        ui->gameView->setSimulation(nullptr);
+        m_simulation.clear();
+    }
+
+    ui->gameView->update();
+}
+
 void GameWindow::updatePlayerStats()
 {
+    if (!m_simulation)
+        return;
+
     auto player = m_simulation->primaryPlayer();
     QString state = player->breakerMode() ? "ON" : "OFF";
     ui->breakerLabel->setText(QString("Breaker: %1").arg(state));
@@ -144,13 +147,12 @@ void GameWindow::updatePlayerStats()
 
 void GameWindow::on_runSingleButton_clicked()
 {
-    if (!m_simulation || m_simulation->finished() ||
-        m_simulation->loopDetected())
+    if (!m_simulation || !m_simulation->canProceed())
         return;
 
     QString action = m_simulation->runSingleStep();
     outputLine(action);
-    if (m_simulation->finished())
+    if (m_simulation->completed())
         outputLine("GAME OVER");
     if (m_simulation->loopDetected())
         outputLine("LOOP");
@@ -161,14 +163,23 @@ void GameWindow::on_runSingleButton_clicked()
 
 void GameWindow::on_runFullButton_clicked()
 {
-    if (!m_simulation || m_simulation->finished() ||
-        m_simulation->loopDetected())
+    if (!m_simulation || !m_simulation->canProceed())
         return;
 
-    m_simulation->runFullGame();
+    bool completed = m_simulation->runFullGame();
 
-    auto player = m_simulation->primaryPlayer();
-    ui->outputText->setText(player->actionList().join("\n"));
+    if (completed)
+    {
+        // If the game has been completed, we will display all actions of
+        // the primary player
+        auto player = m_simulation->primaryPlayer();
+        ui->outputText->setText(player->actionList().join("\n"));
+    }
+    else
+    {
+        // Otherwise just display a single line to indicate a loop
+        ui->outputText->setText("LOOP");
+    }
 
     updatePlayerStats();
     ui->gameView->update();

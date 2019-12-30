@@ -17,41 +17,39 @@ class Player
 public:
     Player();
 
-    void setSimulation(Simulation* simulation);
-
     QString runStep();
 
+    QStringList actionList() const;
+
     QPoint position() const;
-    void setPosition(const QPoint& position);
-
     QPoint direction() const;
-    void setDirection(const QPoint& direction);
 
-    QVector<QPoint> possibleDirections();
+    QVector<QPoint> possibleDirections() const;
     void resetDirectionPriorities();
     void reverseDirectionPriorities();
 
     bool dead() const;
-    void setDead(bool dead);
-
     quint32 shurikens() const;
-    void setShurikens(quint32 shurikens);
-
     bool breakerMode() const;
-    void setBreakerMode(bool breakerMode);
-
-    QStringList actionList() const;
-    QString addAction(QString action);
 
     friend QTextStream& operator<<(QTextStream& out, const Player& p);
 
 private:
 
-    QString move(QPoint destination, QPoint direction);
+    void setSimulation(Simulation* simulation);
+    void setPosition(const QPoint& position);
+    void setDirection(const QPoint& direction);
+    void setDead(bool dead);
+    void setShurikens(quint32 shurikens);
+    void setBreakerMode(bool breakerMode);
 
+    QString addAction(QString action);
+    QString move(QPoint destination, QPoint direction);
     QString throwShuriken(QSharedPointer<Tile> target);
 
 private:
+
+    friend class Simulation;
 
     QPointer<Simulation> m_simulation;
 
@@ -66,7 +64,6 @@ private:
     bool m_dead;
 
     QStringList m_actionList;
-
 };
 
 

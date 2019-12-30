@@ -46,7 +46,7 @@ void Player::setDirection(const QPoint& direction)
     m_direction = direction;
 }
 
-QVector<QPoint> Player::possibleDirections()
+QVector<QPoint> Player::possibleDirections() const
 {
     QVector<QPoint> directions;
 
@@ -55,7 +55,7 @@ QVector<QPoint> Player::possibleDirections()
 
     // Add the direction priorities excluding the current direction,
     // as we want to evaluate a given direction only once per turn
-    for (QPoint& dir : m_directionPriorities)
+    for (QPoint dir : m_directionPriorities)
     {
         if (dir != m_direction)
             directions.push_back(dir);

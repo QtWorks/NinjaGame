@@ -7,16 +7,12 @@
 #include <QMap>
 #include <QTextStream>
 
-Simulation::Simulation(QObject *parent) :
+Simulation::Simulation(QString filename, QObject* parent) :
     QObject(parent),
-    m_finished(false),
+    m_completed(false),
     m_loopDetected(false),
     m_width(0),
     m_height(0)
-{
-}
-
-void Simulation::loadMapFromFile(QString filename)
 {
     QFile file(filename);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
@@ -24,14 +20,6 @@ void Simulation::loadMapFromFile(QString filename)
         auto error = QString("Cannot open file: %1").arg(filename);
         throw std::runtime_error(error.toStdString());
     }
-
-    m_finished = false;
-    m_loopDetected = false;
-    m_width = 0;
-    m_height = 0;
-    m_tiles.clear();
-    m_players.clear();
-    m_previousStates.clear();
 
     // Helper map to store the first endpoint of each pathway pair
     QMap<char, QPoint> firstEndpoints;
@@ -127,7 +115,6 @@ void Simulation::loadMapFromFile(QString filename)
         }
         y++;
     }
-
 }
 
 Simulation::TilePtr Simulation::createTile(char letter) const
@@ -193,14 +180,22 @@ int Simulation::height() const
     return m_height;
 }
 
-bool Simulation::finished() const
+bool Simulation::completed() const
 {
-    return m_finished;
+    return m_completed;
 }
 
 bool Simulation::loopDetected() const
 {
     return m_loopDetected;
+}
+
+bool Simulation::canProceed() const
+{
+    if (m_completed || m_loopDetected)
+        return false;
+
+    return true;
 }
 
 const QVector<Simulation::PlayerPtr> Simulation::players() const
@@ -243,7 +238,7 @@ Simulation::TilePtr Simulation::replaceTile(
 
     // If we are replacing the GOAL tile, then the game should be finished
     if (current->type() == TileType::GOAL)
-        m_finished = true;
+        m_completed = true;
 
     auto newTile = createTile(letter);
     m_tiles[position.y()][position.x()] = newTile;
@@ -324,7 +319,7 @@ QString Simulation::runSingleStep()
 {
     QString action;
 
-    if (m_finished || m_loopDetected || m_players.empty())
+    if (!canProceed())
         return action;
 
     for (auto player : m_players)
@@ -334,7 +329,7 @@ QString Simulation::runSingleStep()
 
     // If the game is finished, we add a "GAME OVER" action to the action list
     // of the primary player
-    if (m_finished)
+    if (m_completed)
     {
         m_players[0]->addAction("GAME OVER");
     }
@@ -346,7 +341,6 @@ QString Simulation::runSingleStep()
     {
         // We have identified a loop!
         m_loopDetected = true;
-        m_players[0]->addAction("LOOP");
     }
     else
     {
@@ -361,17 +355,17 @@ bool Simulation::runFullGame()
 {
     const int maxSteps = 1000;
 
-    if (m_finished || m_loopDetected || m_players.empty())
-        return m_finished;
+    if (!canProceed())
+        return m_completed;
 
     for (int i = 0; i < maxSteps; i++)
     {
         runSingleStep();
-        if (m_finished || m_loopDetected)
+        if (m_completed || m_loopDetected)
             break;
     }
 
-    return m_finished;
+    return m_completed;
 }
 
 

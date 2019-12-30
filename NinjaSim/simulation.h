@@ -19,13 +19,10 @@ public:
 
 public:
 
-    explicit Simulation(QObject *parent = nullptr);
-
-    void loadMapFromFile(QString filename);
+    explicit Simulation(QString filename, QObject* parent = nullptr);
 
     TilePtr tile(const QPoint& position) const;
     TilePtr tile(int x, int y) const;
-    TilePtr replaceTile(const QPoint& position, char letter);
 
     TilePtr findDestructibleTile(
         const QPoint& position, const QPoint& direction, bool goalOnly) const;
@@ -33,8 +30,10 @@ public:
     int width() const;
     int height() const;
 
-    bool finished() const;
+    bool completed() const;
     bool loopDetected() const;
+
+    bool canProceed() const;
 
     const QVector<PlayerPtr> players() const;
     PlayerPtr primaryPlayer() const;
@@ -50,10 +49,13 @@ signals:
 private:
 
     TilePtr createTile(char letter) const;
+    TilePtr replaceTile(const QPoint& position, char letter);
 
 private:
 
-    bool m_finished;
+    friend class Player;
+
+    bool m_completed;
     bool m_loopDetected;
 
     QVector<PlayerPtr> m_players;
