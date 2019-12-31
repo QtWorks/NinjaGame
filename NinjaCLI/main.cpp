@@ -12,6 +12,7 @@
 #include <stdexcept>
 
 #include "ninjasim/simulation.h"
+#include "ninjasim/name_generator.h"
 
 void runSimulation(QString path)
 {
@@ -60,6 +61,11 @@ int main(int argc, char *argv[])
     {
         parser.showHelp(1);
     }
+
+    // Generate custom ninja name for the player
+    NinjaSim::NameGenerator nameGen;
+    QString ninjaName = nameGen.generateNinjaName("Vingelmann", "Peter");
+    QTextStream(stdout) << "Ninja Name: " << ninjaName << endl;
 
     QString listPath = parser.positionalArguments().first();
 
