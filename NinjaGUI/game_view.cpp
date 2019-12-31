@@ -2,8 +2,6 @@
 
 #include <QPainter>
 
-#include "simulation.h"
-
 GameView::GameView(QWidget *parent) :
     QWidget(parent),
     m_tileSize(30)
@@ -12,6 +10,8 @@ GameView::GameView(QWidget *parent) :
     update();
 
     m_ninja = QPixmap(":/images/images/ninja.png");
+
+    using namespace NinjaSim;
 
     m_textures[TileType::BOX] = QPixmap(":/images/images/box.png");
     m_textures[TileType::WALL] = QPixmap(":/images/images/wall.png");
@@ -29,7 +29,7 @@ GameView::GameView(QWidget *parent) :
     m_arrows['S'] = QPixmap(":/images/images/arrow-down.png");
 }
 
-void GameView::setSimulation(Simulation* simulation)
+void GameView::setSimulation(NinjaSim::Simulation* simulation)
 {
     m_simulation = simulation;
 
@@ -82,14 +82,14 @@ void GameView::paintEvent(QPaintEvent*)
                 auto pixmap = m_textures.value(tile->type());
                 painter.drawPixmap(px, py, pixmap);
             }
-            else if (tile->type() == TileType::ARROW)
+            else if (tile->type() == NinjaSim::TileType::ARROW)
             {
                 auto pixmap = m_arrows.value(tile->letter());
                 painter.drawPixmap(px, py, pixmap);
             }
 
             // Also display the letter to identify different pathways
-            if (tile->type() == TileType::PATHWAY)
+            if (tile->type() == NinjaSim::TileType::PATHWAY)
             {
                 // Load a default monospace font
                 QFont font("Courier", 12, QFont::Bold);

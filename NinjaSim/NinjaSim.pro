@@ -17,16 +17,16 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    player.cpp \
-    simulation.cpp \
-    tile.cpp
+    ninjasim/player.cpp \
+    ninjasim/simulation.cpp \
+    ninjasim/tile.cpp
 
 HEADERS += \
-    direction.h \
-    player.h \
-    simulation.h \
-    tile.h \
-    tile_type.h
+    ninjasim/direction.h \
+    ninjasim/player.h \
+    ninjasim/simulation.h \
+    ninjasim/tile.h \
+    ninjasim/tile_type.h
 
 # Default rules for deployment.
 unix {

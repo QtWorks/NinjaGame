@@ -4,8 +4,8 @@
 #include <QPointer>
 #include <QWidget>
 
-#include "tile_type.h"
-#include "simulation.h"
+#include "ninjasim/tile_type.h"
+#include "ninjasim/simulation.h"
 
 class GameView : public QWidget
 {
@@ -16,7 +16,7 @@ public:
     int tileSize() const;
     void setTileSize(int tileSize);
 
-    void setSimulation(Simulation* simulation);
+    void setSimulation(NinjaSim::Simulation* simulation);
 
 signals:
 
@@ -27,8 +27,8 @@ protected:
 private:
 
     int m_tileSize;
-    QPointer<Simulation> m_simulation;
-    QMap<TileType, QPixmap> m_textures;
+    QPointer<NinjaSim::Simulation> m_simulation;
+    QMap<NinjaSim::TileType, QPixmap> m_textures;
     QMap<char, QPixmap> m_arrows;
     QPixmap m_ninja;
 };

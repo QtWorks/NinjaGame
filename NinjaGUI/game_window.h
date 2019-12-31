@@ -4,7 +4,7 @@
 #include <QFileSystemModel>
 #include <QSharedPointer>
 
-#include "simulation.h"
+#include "ninjasim/simulation.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class GameWindow; }
@@ -19,7 +19,7 @@ public:
     ~GameWindow();
 
     void updatePlayerStats();
-    
+
 private:
     void openFile(QString filename);
 
@@ -42,6 +42,6 @@ private:
     Ui::GameWindow *ui;
 
     QSharedPointer<QFileSystemModel> m_fileSystemModel;
-    QSharedPointer<Simulation> m_simulation;
+    QSharedPointer<NinjaSim::Simulation> m_simulation;
 };
 

@@ -3,6 +3,8 @@
 #include <QPoint>
 #include <QString>
 
+namespace NinjaSim
+{
 class Direction
 {
 public:
@@ -26,3 +28,4 @@ public:
         return "UNKNOWN_DIRECTION";
     }
 };
+}

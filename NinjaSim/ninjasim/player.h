@@ -10,6 +10,8 @@
 #include "direction.h"
 #include "tile.h"
 
+namespace NinjaSim
+{
 class Simulation;
 
 class Player
@@ -65,6 +67,7 @@ private:
 
     QStringList m_actionList;
 };
+}
 
 
 

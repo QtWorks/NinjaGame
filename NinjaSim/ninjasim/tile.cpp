@@ -1,6 +1,9 @@
 #include "tile.h"
 #include "direction.h"
 
+namespace NinjaSim
+{
+
 Tile::Tile(TileType type, char letter):
     m_type(type),
     m_letter(letter),
@@ -91,4 +94,6 @@ QPoint Tile::position() const
 void Tile::setPosition(const QPoint &position)
 {
     m_position = position;
+}
+
 }

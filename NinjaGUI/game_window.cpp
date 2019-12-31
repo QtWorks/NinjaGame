@@ -6,8 +6,6 @@
 #include "game_window.h"
 #include "ui_game_window.h"
 
-#include "simulation.h"
-
 static QString inputFolderPath()
 {
     QString current = QDir::currentPath();
@@ -110,7 +108,7 @@ void GameWindow::openFile(QString filename)
 
     try
     {
-        m_simulation.reset(new Simulation(filename, this));
+        m_simulation.reset(new NinjaSim::Simulation(filename, this));
         ui->mapLabel->setText(filename);
         outputLine(QString("Map opened: %1").arg(filename));
 

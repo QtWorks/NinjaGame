@@ -10,6 +10,8 @@
 #include "tile.h"
 #include "player.h"
 
+namespace NinjaSim
+{
 class Simulation : public QObject
 {
 public:
@@ -66,3 +68,4 @@ private:
 
     QHash<QString, int> m_previousStates;
 };
+}

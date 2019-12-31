@@ -4,6 +4,8 @@
 
 #include <QPoint>
 
+namespace NinjaSim
+{
 class Tile
 {
 public:
@@ -37,4 +39,5 @@ private:
     // The other endpoint for pathway
     QPoint m_pathwayEndpoint;
 };
+}
 

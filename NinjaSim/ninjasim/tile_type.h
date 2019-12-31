@@ -1,5 +1,7 @@
 #pragma once
 
+namespace NinjaSim
+{
 // Possible types of tiles on a given map
 enum class TileType
 {
@@ -15,3 +17,4 @@ enum class TileType
     SHURIKEN,
     BOMB
 };
+}

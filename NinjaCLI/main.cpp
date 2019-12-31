@@ -11,14 +11,14 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "simulation.h"
+#include "ninjasim/simulation.h"
 
 void runSimulation(QString path)
 {
     try
     {
         // Create a simulation using the given map file
-        Simulation simulation(path);
+        NinjaSim::Simulation simulation(path);
 
         // Run the full simulation
         bool completed = simulation.runFullGame();

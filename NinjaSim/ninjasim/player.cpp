@@ -2,6 +2,9 @@
 
 #include "simulation.h"
 
+namespace NinjaSim
+{
+
 Player::Player() :
     m_position(),
     m_direction(Direction::south()),
@@ -237,4 +240,6 @@ QString Player::runStep()
     }
 
     return action;
+}
+
 }

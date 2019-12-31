@@ -7,6 +7,9 @@
 #include <QMap>
 #include <QTextStream>
 
+namespace NinjaSim
+{
+
 Simulation::Simulation(QString filename, QObject* parent) :
     QObject(parent),
     m_completed(false),
@@ -368,4 +371,5 @@ bool Simulation::runFullGame()
     return m_completed;
 }
 
+}
 
