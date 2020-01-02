@@ -52,36 +52,13 @@ bool Tile::isDestructible() const
     return false;
 }
 
-QPoint Tile::direction() const
-{
-    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
-    return QPoint();
-}
-
-QPoint Tile::pathwayEndpoint() const
-{
-    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
-    return QPoint();
-}
-
-void Tile::setPathwayEndpoint(const QPoint&)
-{
-    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
-}
-
-bool Tile::activated() const
-{
-    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
-    return false;
-}
-
-void Tile::setActivated(bool)
-{
-    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
-}
-
 void Tile::runStep(Simulation*)
 {
+}
+
+void Tile::setLetter(char letter)
+{
+    m_letter = letter;
 }
 
 }

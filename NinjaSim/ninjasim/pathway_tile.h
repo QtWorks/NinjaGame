@@ -12,12 +12,12 @@ public:
     {
     }
 
-    virtual QPoint pathwayEndpoint() const
+    QPoint pathwayEndpoint() const
     {
         return m_pathwayEndpoint;
     }
 
-    virtual void setPathwayEndpoint(const QPoint &pathwayEndpoint)
+    void setPathwayEndpoint(const QPoint &pathwayEndpoint)
     {
         m_pathwayEndpoint = pathwayEndpoint;
     }

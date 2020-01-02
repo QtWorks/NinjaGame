@@ -10,7 +10,7 @@ public:
     ArrowTile(char letter):
         Tile(TileType::ARROW, letter)
     {
-        switch (m_letter)
+        switch (letter)
         {
         case 'S':
             m_direction = Direction::south();
@@ -30,7 +30,7 @@ public:
         }
     }
 
-    virtual QPoint direction() const
+    QPoint direction() const
     {
         return m_direction;
     }

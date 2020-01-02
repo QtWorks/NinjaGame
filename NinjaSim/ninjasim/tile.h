@@ -28,16 +28,13 @@ public:
     virtual bool isObstacle() const;
     virtual bool isDestructible() const;
 
-    virtual QPoint direction() const;
-
-    virtual QPoint pathwayEndpoint() const;
-    virtual void setPathwayEndpoint(const QPoint& pathwayEndpoint);
-
-    virtual bool activated() const;
-    virtual void setActivated(bool activated);
     virtual void runStep(Simulation*);
 
 protected:
+
+    void setLetter(char letter);
+
+private:
 
     TileType m_type;
     char m_letter;

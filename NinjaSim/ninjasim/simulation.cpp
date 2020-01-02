@@ -84,10 +84,12 @@ Simulation::Simulation(QString filename, QObject* parent) :
                 if (firstEndpoints.contains(letter))
                 {
                     QPoint first = firstEndpoints.value(letter);
-                    TilePtr firstTile = this->tile(first.x(), first.y());
+                    auto firstEndpoint =
+                        this->tile(first).staticCast<PathwayTile>();
                     // Store the respective endpoints in both tiles
-                    firstTile->setPathwayEndpoint(current);
-                    tile->setPathwayEndpoint(first);
+                    firstEndpoint->setPathwayEndpoint(current);
+                    auto secondEndpoint = tile.staticCast<PathwayTile>();
+                    secondEndpoint->setPathwayEndpoint(first);
                 }
                 else
                 {
@@ -264,6 +266,20 @@ Simulation::PlayerPtr Simulation::primaryPlayer() const
     return nullptr;
 }
 
+QVector<Simulation::PlayerPtr> Simulation::findPlayers(
+    const QPoint& position) const
+{
+    QVector<PlayerPtr> result;
+
+    for (auto player : m_players)
+    {
+        if (player->position() == position)
+            result.push_back(player);
+    }
+
+    return result;
+}
+
 Simulation::TilePtr Simulation::tile(const QPoint& position) const
 {
     return tile(position.x(), position.y());
@@ -337,7 +353,9 @@ void Simulation::activateBombsAround(const QPoint& position)
 
         // Activate any bomb tiles
         if (target->type() == TileType::BOMB)
-            target->setActivated(true);
+        {
+            target.staticCast<BombTile>()->setActivated(true);
+        }
     }
 }
 
@@ -388,6 +406,10 @@ QString Simulation::runSingleStep()
         if (player->dead()) continue;
         action = player->runStep();
     }
+
+    // If the primary player is dead, then the game should be completed
+    if (m_players[0]->dead())
+        m_completed = true;
 
     // If the game is finished, we add a "GAME OVER" action to the action list
     // of the primary player

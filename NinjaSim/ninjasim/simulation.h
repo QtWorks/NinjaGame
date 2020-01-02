@@ -42,11 +42,11 @@ public:
 
     const QVector<PlayerPtr> players() const;
     PlayerPtr primaryPlayer() const;
+    QVector<PlayerPtr> findPlayers(const QPoint& position) const;
 
     QString toString() const;
 
     QString runSingleStep();
-
     bool runFullGame();
 
 signals:
