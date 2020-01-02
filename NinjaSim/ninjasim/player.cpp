@@ -1,6 +1,8 @@
 #include "player.h"
 
 #include "simulation.h"
+#include "arrow_tile.h"
+#include "pathway_tile.h"
 
 namespace NinjaSim
 {
@@ -154,6 +156,9 @@ QString Player::move(QPoint destination, QPoint direction)
     // Update player position
     setPosition(destination);
 
+    // Activate any bombs if the player is within 1 tile
+    m_simulation->activateBombsAround(m_position);
+
     // Change properties if the player steps on a special tile
     auto tile = m_simulation->tile(destination);
 
@@ -170,11 +175,12 @@ QString Player::move(QPoint destination, QPoint direction)
     }
     else if (tile->type() == TileType::ARROW)
     {
-        setDirection(tile->direction());
+        setDirection(tile.staticCast<ArrowTile>()->direction());
     }
     else if (tile->type() == TileType::PATHWAY)
     {
-        setPosition(tile->pathwayEndpoint());
+        setPosition(tile.staticCast<PathwayTile>()->pathwayEndpoint());
+        m_simulation->activateBombsAround(m_position);
     }
 
     return addAction(Direction::name(direction));
@@ -182,9 +188,9 @@ QString Player::move(QPoint destination, QPoint direction)
 
 QString Player::runStep()
 {
-    QString action("NO_ACTION");
+    QString action;
 
-    if (!m_simulation)
+    if (!m_simulation || m_dead)
         return action;
 
     // THROW SHURIKEN ACTION

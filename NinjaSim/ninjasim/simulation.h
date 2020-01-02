@@ -8,6 +8,7 @@
 #include <QVector>
 
 #include "tile.h"
+#include "bomb_tile.h"
 #include "player.h"
 
 namespace NinjaSim
@@ -29,6 +30,8 @@ public:
     TilePtr findDestructibleTile(
         const QPoint& position, const QPoint& direction, bool goalOnly) const;
 
+    void activateBombsAround(const QPoint& position);
+
     int width() const;
     int height() const;
 
@@ -39,23 +42,24 @@ public:
 
     const QVector<PlayerPtr> players() const;
     PlayerPtr primaryPlayer() const;
+    QVector<PlayerPtr> findPlayers(const QPoint& position) const;
 
     QString toString() const;
 
     QString runSingleStep();
-
     bool runFullGame();
 
 signals:
 
 private:
 
-    TilePtr createTile(char letter) const;
+    TilePtr createTile(const QPoint& position, char letter);
     TilePtr replaceTile(const QPoint& position, char letter);
 
 private:
 
     friend class Player;
+    friend class BombTile;
 
     bool m_completed;
     bool m_loopDetected;
@@ -65,6 +69,7 @@ private:
     int m_width;
     int m_height;
     QVector<QVector<TilePtr>> m_tiles;
+    QVector<TilePtr> m_dynamicTiles;
 
     QHash<QString, int> m_previousStates;
 };

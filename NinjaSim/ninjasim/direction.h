@@ -2,6 +2,7 @@
 
 #include <QPoint>
 #include <QString>
+#include <QVector>
 
 namespace NinjaSim
 {
@@ -9,23 +10,13 @@ class Direction
 {
 public:
 
-    static QPoint south() { return QPoint(0,1); }
-    static QPoint east() { return QPoint(1,0); }
-    static QPoint north() { return QPoint(0,-1); }
-    static QPoint west() { return QPoint(-1,0); }
+    static QPoint south();
+    static QPoint east();
+    static QPoint north();
+    static QPoint west();
 
-    static QString name(QPoint dir)
-    {
-        if (dir == south())
-            return "SOUTH";
-        else if (dir == east())
-            return "EAST";
-        else if (dir == north())
-            return "NORTH";
-        else if (dir == west())
-            return "WEST";
+    static QString name(QPoint dir);
 
-        return "UNKNOWN_DIRECTION";
-    }
+    static QVector<QPoint> all();
 };
 }

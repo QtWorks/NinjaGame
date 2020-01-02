@@ -13,6 +13,7 @@
 namespace NinjaSim
 {
 class Simulation;
+class BombTile;
 
 class Player
 {
@@ -52,6 +53,7 @@ private:
 private:
 
     friend class Simulation;
+    friend class BombTile;
 
     QPointer<Simulation> m_simulation;
 

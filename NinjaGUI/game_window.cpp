@@ -149,7 +149,7 @@ void GameWindow::on_runSingleButton_clicked()
         return;
 
     QString action = m_simulation->runSingleStep();
-    outputLine(action);
+    if (!action.isEmpty()) outputLine(action);
     if (m_simulation->completed())
         outputLine("GAME OVER");
     if (m_simulation->loopDetected())
