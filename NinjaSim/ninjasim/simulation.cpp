@@ -7,6 +7,19 @@
 #include <QMap>
 #include <QTextStream>
 
+#include "arrow_tile.h"
+#include "bomb_tile.h"
+#include "booster_tile.h"
+#include "box_tile.h"
+#include "empty_tile.h"
+#include "goal_tile.h"
+#include "mirror_tile.h"
+#include "pathway_tile.h"
+#include "shuriken_tile.h"
+#include "start_tile.h"
+#include "wall_tile.h"
+
+
 namespace NinjaSim
 {
 
@@ -48,27 +61,25 @@ Simulation::Simulation(QString filename, QObject* parent) :
 
             QPoint current(x, y);
 
-            auto tile = createTile(letter);
+            auto tile = createTile(current, letter);
             if (tile.isNull())
             {
                 QString error("Invalid character in line %1: '%2'");
                 error = error.arg(y).arg(letter);
                 throw std::runtime_error(error.toStdString());
             }
-            tile->setPosition(current);
 
             if (tile->type() == TileType::START)
             {
                 // Create a new player for each start tile
                 PlayerPtr player(new Player());
                 player->setSimulation(this);
-                player->setPosition(QPoint(x, y));
+                player->setPosition(current);
                 m_players.push_back(player);
             }
 
             if (tile->type() == TileType::PATHWAY)
             {
-
                 // Find the other endpoint of this pathway
                 if (firstEndpoints.contains(letter))
                 {
@@ -112,7 +123,7 @@ Simulation::Simulation(QString filename, QObject* parent) :
         while (line.size() < m_width)
         {
             // Add some empty tiles until the line reaches full length
-            TilePtr tile(new Tile(TileType::EMPTY, ' '));
+            TilePtr tile(new EmptyTile(' '));
             tile->setPosition(QPoint(line.size(), y));
             line.push_back(tile);
         }
@@ -120,41 +131,42 @@ Simulation::Simulation(QString filename, QObject* parent) :
     }
 }
 
-Simulation::TilePtr Simulation::createTile(char letter) const
+Simulation::TilePtr Simulation::createTile(
+    const QPoint& position, char letter)
 {
     TilePtr tile;
 
     switch (letter)
     {
     case ' ':
-        tile.reset(new Tile(TileType::EMPTY, letter));
+        tile.reset(new EmptyTile(letter));
         break;
     case '@':
-        tile.reset(new Tile(TileType::START, letter));
+        tile.reset(new StartTile(letter));
         break;
     case '$':
-        tile.reset(new Tile(TileType::GOAL, letter));
+        tile.reset(new GoalTile(letter));
         break;
     case '#':
-        tile.reset(new Tile(TileType::WALL, letter));
+        tile.reset(new WallTile(letter));
         break;
     case 'X':
-        tile.reset(new Tile(TileType::BOX, letter));
+        tile.reset(new BoxTile(letter));
         break;
     case 'M':
-        tile.reset(new Tile(TileType::MIRROR, letter));
+        tile.reset(new MirrorTile(letter));
         break;
     case 'B':
-        tile.reset(new Tile(TileType::BOOSTER, letter));
+        tile.reset(new BoosterTile(letter));
         break;
     case '*':
-        tile.reset(new Tile(TileType::SHURIKEN, letter));
+        tile.reset(new ShurikenTile(letter));
         break;
     case 'S':
     case 'E':
     case 'N':
     case 'W':
-        tile.reset(new Tile(TileType::ARROW, letter));
+        tile.reset(new ArrowTile(letter));
         break;
     case 'F':
     case 'G':
@@ -163,14 +175,52 @@ Simulation::TilePtr Simulation::createTile(char letter) const
     case 'J':
     case 'K':
     case 'L':
-        tile.reset(new Tile(TileType::PATHWAY, letter));
+        tile.reset(new PathwayTile(letter));
+        break;
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        tile.reset(new BombTile(letter));
         break;
     default:
         qDebug("Unhandled letter: '%c' (code: %d)", letter, (int)letter);
-        break;
+        return nullptr;
+    }
+
+    tile->setPosition(position);
+
+    // Add this tile to the dynamic tiles
+    if (tile->isDynamic())
+    {
+        m_dynamicTiles.push_back(tile);
     }
 
     return tile;
+}
+
+Simulation::TilePtr Simulation::replaceTile(
+    const QPoint& position, char letter)
+{
+    auto current = tile(position);
+    // We cannot replace a non-existent tile
+    if (!current)
+        return nullptr;
+
+    // If we are replacing the GOAL tile, then the game should be finished
+    if (current->type() == TileType::GOAL)
+        m_completed = true;
+
+    // Create and store the new tile
+    auto newTile = createTile(position, letter);
+    m_tiles[position.y()][position.x()] = newTile;
+    return newTile;
 }
 
 int Simulation::width() const
@@ -231,23 +281,6 @@ Simulation::TilePtr Simulation::tile(int x, int y) const
     return nullptr;
 }
 
-Simulation::TilePtr Simulation::replaceTile(
-    const QPoint& position, char letter)
-{
-    auto current = tile(position);
-    // We cannot replace a non-existent tile
-    if (!current)
-        return nullptr;
-
-    // If we are replacing the GOAL tile, then the game should be finished
-    if (current->type() == TileType::GOAL)
-        m_completed = true;
-
-    auto newTile = createTile(letter);
-    m_tiles[position.y()][position.x()] = newTile;
-    return newTile;
-}
-
 Simulation::TilePtr Simulation::findDestructibleTile(
     const QPoint& position, const QPoint& direction, bool goalOnly) const
 {
@@ -290,6 +323,24 @@ Simulation::TilePtr Simulation::findDestructibleTile(
     return nullptr;
 }
 
+void Simulation::activateBombsAround(const QPoint& position)
+{
+    // Try all 4 directions
+    for (QPoint dir : Direction::all())
+    {
+        // Add the current direction to the starting position
+        QPoint targetPos = position + dir;
+
+        auto target = tile(targetPos);
+        // Skip non-existent tiles that would be outside the map boundaries
+        if (!target) continue;
+
+        // Activate any bomb tiles
+        if (target->type() == TileType::BOMB)
+            target->setActivated(true);
+    }
+}
+
 QString Simulation::toString() const
 {
     QString result;
@@ -325,8 +376,16 @@ QString Simulation::runSingleStep()
     if (!canProceed())
         return action;
 
+    // Run a single step for each dynamic tile
+    for (auto tile : m_dynamicTiles)
+    {
+        tile->runStep(this);
+    }
+
+    // Run a single action for each player
     for (auto player : m_players)
     {
+        if (player->dead()) continue;
         action = player->runStep();
     }
 

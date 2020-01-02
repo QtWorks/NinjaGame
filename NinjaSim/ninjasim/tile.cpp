@@ -1,36 +1,19 @@
 #include "tile.h"
-#include "direction.h"
+#include "simulation.h"
 
 namespace NinjaSim
 {
 
 Tile::Tile(TileType type, char letter):
     m_type(type),
-    m_letter(letter),
-    m_direction(QPoint())
+    m_letter(letter)
 {
-    if (m_type == TileType::ARROW)
-    {
-        switch (m_letter)
-        {
-        case 'S':
-            m_direction = Direction::south();
-            break;
-        case 'E':
-            m_direction = Direction::east();
-            break;
-        case 'N':
-            m_direction = Direction::north();
-            break;
-        case 'W':
-            m_direction = Direction::west();
-            break;
-        default:
-            Q_ASSERT(false && "Invalid direction letter");
-            break;
 
-        }
-    }
+}
+
+Tile::~Tile()
+{
+
 }
 
 TileType Tile::type() const
@@ -43,48 +26,6 @@ char Tile::letter() const
     return m_letter;
 }
 
-bool Tile::isObstacle() const
-{
-    switch (m_type)
-    {
-    case TileType::WALL:
-    case TileType::BOX:
-    case TileType::GOAL:
-    case TileType::MIRROR:
-        return true;
-
-    default:
-        return false;
-    }
-}
-
-bool Tile::isDestructible() const
-{
-    switch (m_type)
-    {
-    case TileType::BOX:
-    case TileType::GOAL:
-        return true;
-
-    default:
-        return false;
-    }
-}
-
-QPoint Tile::direction() const
-{
-    return m_direction;
-}
-
-QPoint Tile::pathwayEndpoint() const
-{
-    return m_pathwayEndpoint;
-}
-
-void Tile::setPathwayEndpoint(const QPoint &pathwayEndpoint)
-{
-    m_pathwayEndpoint = pathwayEndpoint;
-}
 
 QPoint Tile::position() const
 {
@@ -94,6 +35,53 @@ QPoint Tile::position() const
 void Tile::setPosition(const QPoint &position)
 {
     m_position = position;
+}
+
+bool Tile::isDynamic() const
+{
+    return false;
+}
+
+bool Tile::isObstacle() const
+{
+    return false;
+}
+
+bool Tile::isDestructible() const
+{
+    return false;
+}
+
+QPoint Tile::direction() const
+{
+    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
+    return QPoint();
+}
+
+QPoint Tile::pathwayEndpoint() const
+{
+    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
+    return QPoint();
+}
+
+void Tile::setPathwayEndpoint(const QPoint&)
+{
+    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
+}
+
+bool Tile::activated() const
+{
+    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
+    return false;
+}
+
+void Tile::setActivated(bool)
+{
+    Q_ASSERT(false && "Cannot invoke virtual function on parent object");
+}
+
+void Tile::runStep(Simulation*)
+{
 }
 
 }

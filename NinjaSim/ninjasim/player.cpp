@@ -154,6 +154,9 @@ QString Player::move(QPoint destination, QPoint direction)
     // Update player position
     setPosition(destination);
 
+    // Activate any bombs if the player is within 1 tile
+    m_simulation->activateBombsAround(m_position);
+
     // Change properties if the player steps on a special tile
     auto tile = m_simulation->tile(destination);
 
@@ -175,6 +178,7 @@ QString Player::move(QPoint destination, QPoint direction)
     else if (tile->type() == TileType::PATHWAY)
     {
         setPosition(tile->pathwayEndpoint());
+        m_simulation->activateBombsAround(m_position);
     }
 
     return addAction(Direction::name(direction));

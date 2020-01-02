@@ -88,8 +88,10 @@ void GameView::paintEvent(QPaintEvent*)
                 painter.drawPixmap(px, py, pixmap);
             }
 
-            // Also display the letter to identify different pathways
-            if (tile->type() == NinjaSim::TileType::PATHWAY)
+            // Also display the tile letter to identify different pathways
+            // and highlight the current state of the timebomb
+            if (tile->type() == NinjaSim::TileType::PATHWAY ||
+                tile->type() == NinjaSim::TileType::BOMB)
             {
                 // Load a default monospace font
                 QFont font("Courier", 12, QFont::Bold);
